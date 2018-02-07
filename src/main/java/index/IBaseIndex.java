@@ -1,16 +1,16 @@
 package index;
 
-public interface IBaseIndex<K, V> {
+import model.User;
 
-    void createIndex();
+public interface IBaseIndex {
 
-    void recoveryIndex();
+    void initIndex();
 
-    V get(K k);
+    User get(String key);
 
-    V put(K k, V v);
+    User put(String key, User user);
 
-    V remove(K k);
+    User remove(String key);
 
 
 }

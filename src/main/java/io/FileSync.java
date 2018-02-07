@@ -6,9 +6,8 @@ public class FileSync {
 
     private final String directory;
     private final String filename;
-    private File file;
-    private ObjectOutputStream objectOutputStream;
-    private ObjectInputStream objectInputStream;
+    private File curFile;
+    private File newFile;
 
     public FileSync(String directory, String filename) {
         this.directory = directory;
@@ -17,25 +16,43 @@ public class FileSync {
     }
 
 
-    public void open() throws IOException {
-        File file = new File(this.directory + this.filename);
-        if (!file.exists()) {
-            file.createNewFile();
+    public void open() {
+        String basepath = this.directory + filename;
+        this.curFile = new File(basepath + ".data");
+        this.newFile = new File(basepath + ".repo");
+        if (!curFile.exists()) {
+            if (newFile.exists()) {
+                newFile.renameTo(curFile);
+            } else {
+                try {
+                    curFile.createNewFile();
+                    newFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        this.objectInputStream = new ObjectInputStream(new FileInputStream(file));
-        this.objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
     }
 
-    public void read() {
-        return;
+    public Object read() throws IOException, ClassNotFoundException {
+        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(this.curFile));
+        return objectInputStream.readObject();
     }
 
-    public void write() {
-        return;
+    public void write(Object v) throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(this.newFile));
+        objectOutputStream.writeObject(v);
+        objectOutputStream.close();
+        synchronized (this.curFile) {
+            this.curFile.renameTo(new File(this.curFile.getPath() + ".old"));
+            this.newFile.renameTo(this.curFile);
+        }
     }
 
-    public void close() {
-        return;
+    public String getPath() {
+        return this.curFile.getPath();
     }
+
+
 
 }
