@@ -17,9 +17,13 @@ public class FileSync {
 
 
     public void open() {
-        String basepath = this.directory + filename;
-        this.curFile = new File(basepath + ".data");
-        this.newFile = new File(basepath + ".repo");
+        String baseFilePath = this.directory + "/" +filename;
+        File baseDirectory = new File(this.directory);
+        if (!baseDirectory.exists()) {
+            baseDirectory.mkdirs();
+        }
+        this.curFile = new File(baseFilePath + ".data");
+        this.newFile = new File(baseFilePath + ".repo");
         if (!curFile.exists()) {
             if (newFile.exists()) {
                 newFile.renameTo(curFile);
@@ -34,9 +38,14 @@ public class FileSync {
         }
     }
 
-    public Object read() throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(this.curFile));
-        return objectInputStream.readObject();
+    public Object read(){
+
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(this.curFile));
+            return objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
     }
 
     public void write(Object v) throws IOException {
@@ -49,8 +58,17 @@ public class FileSync {
         }
     }
 
-    public String getPath() {
-        return this.curFile.getPath();
+    public String getFilePath() {
+        try {
+            return this.curFile.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this.curFile.getAbsolutePath();
+    }
+
+    public String getFileDirectory() {
+        return this.getFilePath().replace(this.curFile.getName(), "");
     }
 
 

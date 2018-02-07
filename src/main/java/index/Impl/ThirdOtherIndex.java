@@ -2,12 +2,12 @@ package index.Impl;
 
 import model.User;
 
-public class ThirdOtherIndex extends BaseIndexImpl<Integer, User>{
+public class ThirdOtherIndex extends BaseIndexImpl<User>{
 
     public ThirdOtherIndex(String directory) {
         super(directory, "other");
-        this.keyStartIdx = 15;
-        this.keyEndIdx = 19;
+        this.keyStartIdx = 14;
+        this.keyEndIdx = 18;
     }
 
 
@@ -27,6 +27,6 @@ public class ThirdOtherIndex extends BaseIndexImpl<Integer, User>{
     @Override
     protected Integer getCurKey(String key) {
         key = key.toLowerCase().replace("x", "10");
-        return super.getCurKey(key);
+        return Integer.valueOf(key.substring(this.keyStartIdx));
     }
 }

@@ -2,28 +2,28 @@ package index.Impl;
 
 import model.User;
 
-public class SecondDateIndex extends BaseIndexImpl<Integer, String >{
+public class SecondDateIndex extends BaseIndexImpl<String >{
 
 
     public SecondDateIndex(String directory) {
         super(directory, "date");
-        this.keyStartIdx = 7;
-        this.keyEndIdx = 15;
+        this.keyStartIdx = 6;
+        this.keyEndIdx = 14;
     }
 
     protected String getCurIndex(Integer curKey) {
         String value = this.index.get(curKey);
-        ThirdOtherIndex thirdOtherIndex = new ThirdOtherIndex(curKey.toString());
+        ThirdOtherIndex thirdOtherIndex = new ThirdOtherIndex(this.getFileDirectory() + curKey.toString());
         this.setNextIndex(thirdOtherIndex);
         return value;
     }
 
     protected String putCurIndex(Integer curKey, User user) {
         String value = this.index.get(curKey);
-        ThirdOtherIndex thirdOtherIndex = new ThirdOtherIndex(curKey.toString());
+        ThirdOtherIndex thirdOtherIndex = new ThirdOtherIndex(this.getFileDirectory() + curKey.toString());
         this.setNextIndex(thirdOtherIndex);
         if (value == null) {
-            this.index.put(curKey, thirdOtherIndex.getPath());
+            this.index.put(curKey, thirdOtherIndex.getFilePath());
         }
         return value;
     }

@@ -7,12 +7,12 @@ import model.User;
 import java.io.IOException;
 import java.util.TreeMap;
 
-public abstract class BaseIndexImpl<K, V> extends FileSync implements IBaseIndex {
+public abstract class BaseIndexImpl<V> extends FileSync implements IBaseIndex {
 
-    protected TreeMap<K, V> index;
+    protected TreeMap<Integer, V> index;
     protected int keyStartIdx;
     protected int keyEndIdx;
-    private BaseIndexImpl<K, V> nextIndex;
+    private BaseIndexImpl nextIndex;
 
 
     public BaseIndexImpl(String directory, String filename) {
@@ -26,20 +26,14 @@ public abstract class BaseIndexImpl<K, V> extends FileSync implements IBaseIndex
 
 
     public void initIndex() {
-        try {
-            this.index = (TreeMap<K, V>) this.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        this.index = (TreeMap<Integer, V>) this.read();
         if (this.index == null) {
-            this.index = new TreeMap<K, V>();
+            this.index = new TreeMap<Integer, V>();
         }
     }
 
     public User get(String key) {
-        K curKey = this.getCurKey(key);
+        Integer curKey = this.getCurKey(key);
         V v = this.getCurIndex(curKey);
         if (this.nextIndex != null) {
             return this.nextIndex.get(key);
@@ -48,23 +42,24 @@ public abstract class BaseIndexImpl<K, V> extends FileSync implements IBaseIndex
     }
 
     public User put(String key, User user) {
-        K curKey = this.getCurKey(key);
+        Integer curKey = this.getCurKey(key);
         V v = this.putCurIndex(curKey, user);
+        this.sync();
         if (this.nextIndex != null) {
-            return this.nextIndex.get(key);
+            return this.nextIndex.put(key, user);
         }
-        return (User) v;
+        return (User) this.getCurIndex(curKey);
     }
 
     public User remove(String key) {
         return null;
     }
 
-    abstract protected V getCurIndex(K k);
+    abstract protected V getCurIndex(Integer curKey);
 
-    abstract protected V putCurIndex(K k, User user);
+    abstract protected V putCurIndex(Integer curKey, User user);
 
-    abstract protected V removeCurIndex(K k);
+    abstract protected V removeCurIndex(Integer curKey);
 
     private synchronized void sync() {
         try {
@@ -74,8 +69,8 @@ public abstract class BaseIndexImpl<K, V> extends FileSync implements IBaseIndex
         }
     }
 
-    protected K getCurKey(String key) {
-        return (K) key.substring(this.keyStartIdx, this.keyEndIdx);
+    protected Integer getCurKey(String key) {
+        return Integer.valueOf(key.substring(this.keyStartIdx, this.keyEndIdx));
     }
 
 }

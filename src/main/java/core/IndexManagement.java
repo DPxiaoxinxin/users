@@ -6,7 +6,7 @@ import model.User;
 
 public class IndexManagement {
 
-    private static IBaseIndex index = new FirstAreaIndex("./");
+    private static IBaseIndex index = new FirstAreaIndex("./index");
 
     public User getUser(String id) {
         return index.get(id);
